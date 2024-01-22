@@ -114,6 +114,20 @@ public class UserManagementRepository : IUserManagementRepository
         }
     }
 
+    public async Task DeleteUserOrgNodeRoleAsync(Guid userOrgNodeRoleId)
+    {
+        using (var context = new UserManagementContext())
+        {
+            var userOrgNodeRole = await context.UserOrgNodeRoles.SingleOrDefaultAsync(o => o.Id.Equals(userOrgNodeRoleId));
+
+            if (userOrgNodeRole is null)
+                throw new Exception("Org node role specified doesn't exist.");
+
+            context.UserOrgNodeRoles.Remove(userOrgNodeRole);
+            await context.SaveChangesAsync();
+        }
+    }
+
     public async Task UpsertUserAsync(User user)
     {
         using (var context = new UserManagementContext())

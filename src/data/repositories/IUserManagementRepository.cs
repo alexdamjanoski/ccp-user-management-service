@@ -12,6 +12,8 @@ public interface IUserManagementRepository
 
     public Task<UserOrgNodeRole> AddUserOrgNodeRoleAsync(Guid userId, Guid userOrgNodeId, Guid roleId);
 
+    public Task DeleteUserOrgNodeRoleAsync(Guid userOrgNodeRoleId);
+
     public Task UpsertUserAsync(User user);
 
     public Task<List<UserOrgNodeRole>> GetUserOrgNodeRolesAsync(Guid userOrgNodeId);

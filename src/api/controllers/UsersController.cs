@@ -247,4 +247,13 @@ public class UsersController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpDelete]
+    [Route("users/{userId}/orgnodes/{userOrgNodeId}/roles/{userOrgNodeRoleId}")]
+    public async Task<IActionResult> DeleteUserOrgNodeRoleAsync(Guid userOrgNodeRoleId)
+    {
+        await _userManagementRepository.DeleteUserOrgNodeRoleAsync(userOrgNodeRoleId);
+
+        return Ok();
+    }
 }
