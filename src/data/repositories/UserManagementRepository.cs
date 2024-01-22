@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 public class UserManagementRepository : IUserManagementRepository
@@ -22,11 +23,11 @@ public class UserManagementRepository : IUserManagementRepository
         }
     }
 
-    public async Task<User?> GetUser(Guid id)
+    public async Task<User?> GetUser(Guid userId)
     {
         using (var context = new UserManagementContext())
         {
-            var user = await context.Users.Include(o => o.OrgNodes).SingleOrDefaultAsync(o => o.Id.Equals(id));
+            var user = await context.Users.Include(o => o.OrgNodes).SingleOrDefaultAsync(o => o.Id.Equals(userId));
 
             return user;
         }
@@ -42,11 +43,11 @@ public class UserManagementRepository : IUserManagementRepository
         }
     }
 
-    public async Task<List<UserOrgNode>> GetUserOrgNodesAsync(Guid id, int? tenantId)
+    public async Task<List<UserOrgNode>> GetUserOrgNodesAsync(Guid userId, int? tenantId)
     {
         using (var context = new UserManagementContext())
         {
-            var query = context.UserOrgNodes.Include(o => o.Roles).Where(o => o.UserId.Equals(id));
+            var query = context.UserOrgNodes.Include(o => o.Roles).Where(o => o.UserId.Equals(userId));
 
             _logger.LogDebug($"Tenant id is {tenantId}");
             if (tenantId is not null)
@@ -55,6 +56,61 @@ public class UserManagementRepository : IUserManagementRepository
             var userOrgNodes = await query.ToListAsync();
 
             return userOrgNodes;
+        }
+    }
+
+    public async Task<List<UserOrgNodeRole>> GetUserOrgNodeRolesAsync(Guid userOrgNodeId)
+    {
+        using (var context = new UserManagementContext())
+        {
+            var roles = await context.UserOrgNodeRoles.Include(o => o.Role).Where(o => o.UserOrgNodeId.Equals(userOrgNodeId)).ToListAsync();
+
+            return roles;
+        }
+    }
+
+    public async Task<UserOrgNode?> GetUserOrgNodeAsync(Guid userId, Guid userOrgNodeId)
+    {
+        using (var context = new UserManagementContext())
+        {
+            var userOrgNode = await context.UserOrgNodes.Include(o => o.Roles).SingleOrDefaultAsync(o => o.UserId.Equals(userId) && o.Id.Equals(userOrgNodeId));
+
+            return userOrgNode;
+        }
+    }
+
+    public async Task<UserOrgNodeRole> AddUserOrgNodeRoleAsync(Guid userId, Guid userOrgNodeId, Guid roleId)
+    {
+        using (var context = new UserManagementContext())
+        {
+            var userOrgNode = await context.UserOrgNodes.Include(o => o.Roles).SingleOrDefaultAsync(o => o.UserId.Equals(userId) && o.Id.Equals(userOrgNodeId));
+
+            if (userOrgNode is null)
+                throw new Exception("Org node specified doesn't exist.");
+
+            foreach (UserOrgNodeRole blah in userOrgNode.Roles)
+            {
+                if (blah.RoleId.Equals(roleId))
+                    throw new Exception("Role specified already assigned.");
+            };
+
+            var role = await context.Roles.SingleOrDefaultAsync(o => o.Id.Equals(roleId));
+            if (role is null)
+                throw new Exception("Role specified doesn't exist.");
+
+            var userOrgNodeRole = new UserOrgNodeRole()
+            {
+                RoleId = role.Id,
+                Role = role,
+                UserOrgNodeId = userOrgNodeId,
+                Created_At = DateTime.Now,
+                Updated_At = DateTime.Now
+            };
+
+            await context.UserOrgNodeRoles.AddAsync(userOrgNodeRole);
+            await context.SaveChangesAsync();
+
+            return userOrgNodeRole;
         }
     }
 
@@ -125,16 +181,6 @@ public class UserManagementRepository : IUserManagementRepository
         }
     }
 
-    public async Task<List<UserOrgNodeRole>> GetUserOrgNodeRolesAsync(Guid userOrgNodeId)
-    {
-        using (var context = new UserManagementContext())
-        {
-            var roles = await context.UserOrgNodeRoles.Include(o => o.Role).Where(o => o.UserOrgNodeId.Equals(userOrgNodeId)).ToListAsync();
-
-            return roles;
-        }
-    }
-
     public async Task<List<Tenant>> GetActiveTenantsAsync()
     {
         using (var context = new UserManagementContext())
@@ -151,11 +197,11 @@ public class UserManagementRepository : IUserManagementRepository
         }
     }
 
-    public async Task<Application?> GetApplicationAsync(Guid id)
+    public async Task<Application?> GetApplicationAsync(Guid applicationId)
     {
         using (var context = new UserManagementContext())
         {
-            return await context.Applications.Include(o => o.Roles).SingleOrDefaultAsync(o => o.Id.Equals(id));
+            return await context.Applications.Include(o => o.Roles).SingleOrDefaultAsync(o => o.Id.Equals(applicationId));
         }
     }
 
@@ -164,6 +210,14 @@ public class UserManagementRepository : IUserManagementRepository
         using (var context = new UserManagementContext())
         {
             return await context.Roles.ToListAsync();
+        }
+    }
+
+    public async Task<Role?> GetRoleAsync(Guid roleId)
+    {
+        using (var context = new UserManagementContext())
+        {
+            return await context.Roles.SingleOrDefaultAsync(o => o.Id.Equals(roleId));
         }
     }
 }

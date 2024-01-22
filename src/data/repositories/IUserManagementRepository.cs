@@ -2,11 +2,15 @@ public interface IUserManagementRepository
 {
     public Task<List<User>> GetUsers();
 
-    public Task<User?> GetUser(Guid id);
+    public Task<User?> GetUser(Guid userId);
 
     public Task<User?> GetUserByEmailAsync(string email);
 
-    public Task<List<UserOrgNode>> GetUserOrgNodesAsync(Guid id, int? tenantId);
+    public Task<List<UserOrgNode>> GetUserOrgNodesAsync(Guid userId, int? tenantId);
+
+    public Task<UserOrgNode?> GetUserOrgNodeAsync(Guid userId, Guid userOrgNodeId);
+
+    public Task<UserOrgNodeRole> AddUserOrgNodeRoleAsync(Guid userId, Guid userOrgNodeId, Guid roleId);
 
     public Task UpsertUserAsync(User user);
 
@@ -16,7 +20,9 @@ public interface IUserManagementRepository
 
     public Task<List<Application>> GetApplicationsAsync();
 
-    public Task<Application?> GetApplicationAsync(Guid id);
+    public Task<Application?> GetApplicationAsync(Guid applicationId);
 
     public Task<List<Role>> GetRolesAsync();
+
+    public Task<Role?> GetRoleAsync(Guid roleId);
 }

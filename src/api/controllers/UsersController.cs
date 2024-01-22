@@ -71,10 +71,10 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    [Route("users/{id}")]
-    public async Task<IActionResult> GetUserAsync(Guid id)
+    [Route("users/{userId}")]
+    public async Task<IActionResult> GetUserAsync(Guid userId)
     {
-        var data = await _userManagementRepository.GetUser(id);
+        var data = await _userManagementRepository.GetUser(userId);
 
         if (data is null)
             return NotFound();
@@ -124,11 +124,11 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    [Route("users/{id}/orgnodes")]
-    public async Task<IActionResult> GetUserOrgNodesAsync(Guid id,
+    [Route("users/{userId}/orgnodes")]
+    public async Task<IActionResult> GetUserOrgNodesAsync(Guid userId,
                                         [FromQuery(Name = "tenantId")] int? tenantId)
     {
-        var data = await _userManagementRepository.GetUserOrgNodesAsync(id, tenantId);
+        var data = await _userManagementRepository.GetUserOrgNodesAsync(userId, tenantId);
 
         if (data is null)
             return NotFound();
@@ -164,6 +164,86 @@ public class UsersController : ControllerBase
 
             response.Add(userOrgNodeDto);
         }
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("users/{userId}/orgnodes/{userOrgNodeId}")]
+    public async Task<IActionResult> GetUserOrgNodeAsync(Guid userId, Guid userOrgNodeId)
+    {
+        var data = await _userManagementRepository.GetUserOrgNodeAsync(userId, userOrgNodeId);
+
+        if (data is null)
+            return NotFound();
+
+        var response = new UserOrgNodeDto()
+        {
+            Id = data.Id,
+            TenantId = data.TenantId,
+            OrgNodeId = data.OrgNodeId,
+            Created_At = data.Created_At,
+            Updated_At = data.Updated_At
+
+        };
+
+        var orgNodeRoles = await _userManagementRepository.GetUserOrgNodeRolesAsync(userOrgNodeId);
+
+        foreach (UserOrgNodeRole userOrgNodeRole in orgNodeRoles)
+        {
+            response.Roles.Add(new UserOrgNodeRoleDto()
+            {
+                Id = userOrgNodeRole.Id,
+                RoleId = userOrgNodeRole.RoleId,
+                RoleName = userOrgNodeRole.Role.Name,
+                ApplicationId = userOrgNodeRole.Role.ApplicationId,
+                Created_At = userOrgNodeRole.Created_At,
+                Updated_At = userOrgNodeRole.Updated_At
+            });
+        }
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    [Route("users/{userId}/orgnodes/{userOrgNodeId}/roles")]
+    public async Task<IActionResult> GetUserOrgNodeRolesAsync(Guid userId, Guid userOrgNodeId)
+    {
+        var data = await _userManagementRepository.GetUserOrgNodeRolesAsync(userOrgNodeId);
+
+        var response = new List<UserOrgNodeRoleDto>();
+
+        foreach (UserOrgNodeRole userOrgNodeRole in data)
+        {
+            response.Add(new UserOrgNodeRoleDto()
+            {
+                Id = userOrgNodeRole.Id,
+                RoleId = userOrgNodeRole.RoleId,
+                RoleName = userOrgNodeRole.Role.Name,
+                ApplicationId = userOrgNodeRole.Role.ApplicationId,
+                Created_At = userOrgNodeRole.Created_At,
+                Updated_At = userOrgNodeRole.Updated_At
+            });
+        }
+
+        return Ok(response);
+    }
+
+    [HttpPost]
+    [Route("users/{userId}/orgnodes/{userOrgNodeId}/roles")]
+    public async Task<IActionResult> AddUserOrgNodeRoleAsync(Guid userId, Guid userOrgNodeId, [FromBody] Guid roleId)
+    {
+        var data = await _userManagementRepository.AddUserOrgNodeRoleAsync(userId, userOrgNodeId, roleId);
+
+        var response = new UserOrgNodeRoleDto()
+        {
+            Id = data.Id,
+            RoleId = data.RoleId,
+            RoleName = data.Role.Name,
+            ApplicationId = data.Role.ApplicationId,
+            Created_At = data.Created_At,
+            Updated_At = data.Updated_At
+        };
 
         return Ok(response);
     }
