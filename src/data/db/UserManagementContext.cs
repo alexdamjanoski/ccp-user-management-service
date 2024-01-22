@@ -88,68 +88,68 @@ public class UserManagementContext : DbContext
         modelBuilder.Entity<Tenant>().HasData(
             new Tenant
             {
-                ClientId = "cl_cjtyn9lnz0000inytba9r6qau",
-                TenantId = 469649111,
+                ClientId = "cl_cljszsiyx00xy079l4i2un2sc",
+                TenantId = 2047494293,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_cjvf8hfwv0000ppytqcfs9p1f",
-                TenantId = 357085960,
+                ClientId = "cl_cljszsinj00xw079l7phzk0ru",
+                TenantId = 2047356732,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_jr7sr4fwv0000ppytqca7rge4",
-                TenantId = 777777,
+                ClientId = "cl_cljszsia503fr085iiyer9yvw",
+                TenantId = 2047356693,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_ck1tf5sjk03fl06rzvzhjmg5y",
-                TenantId = 443410308,
+                ClientId = "cl_cljszshtr03fp085ian9kt9i8",
+                TenantId = 2047344921,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_ck36316yx009d09mf6rp1y5wc",
-                TenantId = 461793632,
+                ClientId = "cl_cljszshg903fn085icsx1xk32",
+                TenantId = 2047327254,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_ck6yh4dev23uv0cnvvrq24ig1",
-                TenantId = 349984906,
+                ClientId = "cl_cljszsh0100tc079eh5b60o75",
+                TenantId = 2047143958,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_ck7c9zdwbcyr206l95bhpq8a9",
-                TenantId = 490542469,
+                ClientId = "cl_cljszsgic00xu079l5np9lf0y",
+                TenantId = 2047079831,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_ck7lwausyk6qg0cnvdveeyjil",
-                TenantId = 365083280,
+                ClientId = "cl_cljszsg3p03fl085ijh0fipzj",
+                TenantId = 2047062813,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_ck7ujjzgkqcef0cnvu8m3csw6",
-                TenantId = 601306030,
+                ClientId = "cl_cljszsfpe03fj085ikr3zjv0v",
+                TenantId = 2047050520,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_ck8eng3hd3oul06o70sa7gnba",
-                TenantId = 1212121111,
+                ClientId = "cl_cljszsfba03fh085ihw96bet8",
+                TenantId = 2044903189,
                 isActive = true
             },
             new Tenant
             {
-                ClientId = "cl_ck9ctzvrr2o1i08ruru72i1zv",
-                TenantId = 666666,
+                ClientId = "cl_cljszsez803ff085immj6wxi9",
+                TenantId = 2044901397,
                 isActive = true
             }
         );

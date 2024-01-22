@@ -46,21 +46,24 @@ public class ProduceUserSyncMessagesService : BackgroundService
 
                         foreach (se.integrations.IServiceTitanEmployee employee in employees.Data)
                         {
-                            var userToSync = new UserToSyncMessage()
+                            if (employee.Email is not null)
                             {
-                                EmployeeId = employee.Id,
-                                Name = employee.Name,
-                                Email = employee.Email,
-                                LoginName = employee.LoginName,
-                                ServiceTitanTenantId = tenant.TenantId
-                            };
+                                var userToSync = new UserToSyncMessage()
+                                {
+                                    EmployeeId = employee.Id,
+                                    Name = employee.Name,
+                                    Email = employee.Email,
+                                    LoginName = employee.LoginName,
+                                    ServiceTitanTenantId = tenant.TenantId
+                                };
 
-                            await sender.SendMessageAsync(new ServiceBusMessage(JsonSerializer.Serialize(userToSync)));
+                                await sender.SendMessageAsync(new ServiceBusMessage(JsonSerializer.Serialize(userToSync)));
+                            }
                         }
                     }
                     catch (Exception e)
                     {
-                        //_logger.LogError($"enquing users for client {tenant.ClientId} failed because {e.Message}");
+                        _logger.LogError($"enquing users for client {tenant.ClientId} failed because {e.Message}");
                     }
                 }
 
@@ -82,7 +85,7 @@ public class UserToSyncMessage
 
     public required string Name { get; set; }
 
-    public required string Email { get; set; }
+    public string? Email { get; set; }
 
     public required string LoginName { get; set; }
 

@@ -59,17 +59,21 @@ public class ConsumeUserSyncMessagesService : BackgroundService
         {
             UserToSyncMessage userToSync = JsonSerializer.Deserialize<UserToSyncMessage>(args.Message.Body.ToString());
 
-            var user = await _userManagementRepository.GetUserByEmailAsync(userToSync.Email);
+            _logger.LogDebug($"syncing user with email {userToSync.Email} part of tenant {userToSync.ServiceTitanTenantId}");
 
-            if (user is null)
+            if (userToSync.Email is not null)
             {
-                user = new User()
+                var user = await _userManagementRepository.GetUserByEmailAsync(userToSync.Email);
+
+                if (user is null)
                 {
-                    Name = userToSync.Name,
-                    Email = userToSync.Email,
-                    ServiceTitanId = userToSync.EmployeeId.ToString(),
-                    LoginName = userToSync.LoginName,
-                    OrgNodes = {
+                    user = new User()
+                    {
+                        Name = userToSync.Name,
+                        Email = userToSync.Email,
+                        ServiceTitanId = userToSync.EmployeeId.ToString(),
+                        LoginName = userToSync.LoginName,
+                        OrgNodes = {
                     new UserOrgNode() {
                         TenantId = userToSync.ServiceTitanTenantId,
                         Roles = {
@@ -82,22 +86,22 @@ public class ConsumeUserSyncMessagesService : BackgroundService
                         }
                     }
                 }
-                };
-            }
-            else
-            {
-                user.Name = userToSync.Name;
-
-                //Update the OrgNode for the tenant specified in the message, adding new one if missing
-                var orgNode = user.OrgNodes.SingleOrDefault(o => o.TenantId == userToSync.ServiceTitanTenantId);
-                if (orgNode is null)
+                    };
+                }
+                else
                 {
-                    _logger.LogDebug($"Org node from tenant {userToSync.ServiceTitanTenantId} not found. Creating it.");
+                    user.Name = userToSync.Name;
 
-                    orgNode = new UserOrgNode()
+                    //Update the OrgNode for the tenant specified in the message, adding new one if missing
+                    var orgNode = user.OrgNodes.SingleOrDefault(o => o.TenantId == userToSync.ServiceTitanTenantId);
+                    if (orgNode is null)
                     {
-                        TenantId = userToSync.ServiceTitanTenantId,
-                        Roles = {
+                        _logger.LogDebug($"Org node from tenant {userToSync.ServiceTitanTenantId} not found. Creating it.");
+
+                        orgNode = new UserOrgNode()
+                        {
+                            TenantId = userToSync.ServiceTitanTenantId,
+                            Roles = {
                             new UserOrgNodeRole() {
                                 RoleId = new Guid("c8949dab-686e-4eb7-bd42-1602fd0254ca")  //CSR
                             },
@@ -105,17 +109,18 @@ public class ConsumeUserSyncMessagesService : BackgroundService
                                 RoleId = new Guid("0cb5bae7-f166-430a-b384-8df785c9243f")  //Supervisor
                             }
                         }
-                    };
+                        };
 
-                    user.OrgNodes.Add(orgNode);
+                        user.OrgNodes.Add(orgNode);
+                    }
                 }
-            }
 
-            try
-            {
-                await _userManagementRepository.UpsertUserAsync(user);
+                try
+                {
+                    await _userManagementRepository.UpsertUserAsync(user);
+                }
+                catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException e) { }
             }
-            catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException e) { }
         }
 
         // complete the message. message is deleted from the queue. 

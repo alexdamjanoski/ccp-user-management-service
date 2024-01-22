@@ -6862,9 +6862,9 @@ namespace se.integrations
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Name { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.Always)]
+        [Newtonsoft.Json.JsonProperty("email", Required = Newtonsoft.Json.Required.AllowNull)]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         // [Newtonsoft.Json.JsonProperty("businessUnitId", Required = Newtonsoft.Json.Required.Always)]
         // public double BusinessUnitId { get; set; }
